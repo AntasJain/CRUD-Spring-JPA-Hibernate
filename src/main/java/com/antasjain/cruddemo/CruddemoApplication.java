@@ -9,24 +9,48 @@ import org.springframework.context.annotation.Bean;
 
 import java.sql.SQLOutput;
 import java.util.List;
+import java.util.Scanner;
 
 @SpringBootApplication
 public class CruddemoApplication {
-
+	Scanner scanner;
 	public static void main(String[] args) {
 		SpringApplication.run(CruddemoApplication.class, args);
 	}
 	@Bean
 	public CommandLineRunner commandLineRunner(StudentDAO studentDAO){
 		return runner -> {
-			//createStudent(studentDAO);
+			boolean keepAtIt = true;
+			while(keepAtIt){
+				System.out.println("Enter 1 to Create Student");
+				System.out.println("Enter 2 to Get Student Info");
+				System.out.println("Enter 3 to Update Student Details");
+				System.out.println("Enter 4 to Delete Student Details");
+				System.out.println("Enter 5 to Delete All Students");
+				System.out.println("Enter 0 to Exit");
+				scanner = new Scanner(System.in);
+				int choice = scanner.nextInt();
+				switch(choice){
+					case 0: keepAtIt=false;break;
+					case 1:createStudent(studentDAO);break;
+					case 2:readStudent(studentDAO);break;
+					case 3: updateStudent(studentDAO);break;
+					case 4: deleteStudent(studentDAO); break;
+					case 5:deleteAllStudents(studentDAO);break;
+					default:
+						System.out.println("Wrong Entry");
+
+				}
+
+
+			}
+
 			//createMulitpleStudents(studentDAO);
-			//readStudent(studentDAO);
+
 			//queryForStudents(studentDAO);
 			//queryForStudentsByLastName(studentDAO);
-			//updateStudent(studentDAO);
-			//deleteStudent(studentDAO);
-			deleteAllStudents(studentDAO);
+
+			//deleteAllStudents(studentDAO);
 		};
 	}
 
@@ -37,18 +61,33 @@ public class CruddemoApplication {
 	}
 
 	private void deleteStudent(StudentDAO studentDAO) {
-		int studentId = 6;
+		System.out.println("Enter Student Id to Delete: ");
+		int studentId = scanner.nextInt();
 		System.out.println("Deleting student with id: "+studentId);
 		studentDAO.delete(studentId);
 	}
 
 	private void updateStudent(StudentDAO studentDAO) {
-		int studentId = 1;
+		System.out.println("Enter Student ID to update Info:");
+		int studentId = scanner.nextInt();
+
 		System.out.println("getting student with id: "+studentId);
+
 		Student oldStudent = studentDAO.findById(studentId);
-		oldStudent.setEmail("aj@dc.com");
+		System.out.println("Press: \n1 to update FirstName\n2 to update LastName\n3 to update Email");
+		int choice = scanner.nextInt();
+		System.out.println("Enter value to Update: ");
+
+		String updateVal = scanner.next();
+		System.out.println("Student details before updating:\n"+oldStudent);
+		switch (choice){
+			case 3: oldStudent.setEmail(updateVal); break;
+			case 2: oldStudent.setLastName(updateVal); break;
+			case 1: oldStudent.setFirstName(updateVal); break;
+		}
+
 		studentDAO.update(oldStudent);
-		readStudent(studentDAO);
+		//readStudent(studentDAO);
 	}
 
 	private void queryForStudentsByLastName(StudentDAO studentDAO) {
@@ -70,12 +109,8 @@ public class CruddemoApplication {
 	}
 
 	private void readStudent(StudentDAO studentDAO) {
-		//create a student obj
-
-		//save student
-
-		//display id of saved student
-		int id = 1;
+		System.out.println("Enter Student ID to get Info:");
+		int id = scanner.nextInt();
 		//retrieve student based on id
 		Student student=studentDAO.findById(id);
 		//display student
@@ -98,13 +133,22 @@ public class CruddemoApplication {
 	}
 
 	private void createStudent(StudentDAO studentDAO) {
+		System.out.println("Enter Student Details as Prompted!");
+
+		System.out.println("--> First Name: ");
+
+		String firstName = scanner.next();
+		System.out.println("--> Last Name: ");
+		String lastName = scanner.next();
+		System.out.println("--> EmailId: ");
+		String email = scanner.next();
 		//create student obj
-		Student tempStudent = new Student("Antas","Jain","antasjain@github.com");
+		Student tempStudent = new Student(firstName,lastName,email);
 		//save student obj
-		System.out.println("Saving the Student...");
+		System.out.println("Saving the Student to Database...");
 		studentDAO.save(tempStudent);
 		//display id of saved student
-		System.out.println("Saved Student. Generated id: "+tempStudent.getId());
+		System.out.println("Saved Student @ ID: " + tempStudent.getId());
 	}
 
 }
